@@ -22,7 +22,7 @@ router.route('/signup').post(async (req, res) => {
         })
     }
 
-    const hash = await argon2.hash(req.body.username);
+    const hash = await argon2.hash(req.body.password);
 
     const user = {
         id: uuidv4(),
@@ -41,7 +41,7 @@ router.route('/signup').post(async (req, res) => {
     });
 });
 
-router.route('/login').post((req, res) => {
+router.route('/login').post(async (req, res) => {
     if (!req.body.username || !req.body.password) {
         return res.status(404).json({
             msg: "Fill in fields"
@@ -53,6 +53,14 @@ router.route('/login').post((req, res) => {
     if (!user) {
         return res.status(404).json({
             msg: "No user with that username exists"
+        });
+    }
+
+    const passwordsMatch = await argon2.verify(user.password, req.body.password);
+
+    if (!passwordsMatch){
+        return res.status(401).json({
+            msg: "Password Incorrect"
         });
     }
     
