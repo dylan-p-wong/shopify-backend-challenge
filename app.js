@@ -1,18 +1,18 @@
 const express = require('express');
 const app = express();
+const fs = require('fs'); 
+require('dotenv').config()
 
-const low = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
-const adapter = new FileSync('db.json');
-const db = low(adapter);
-db.defaults({ users: [], images: []}).write();
-module.exports = db;
+if (!fs.existsSync('./images')) {
+    fs.mkdirSync('./images');
+}
 
-app.use(express.urlencoded({extended: true}))
+app.use(express.json());
 
+const userRoutes = require('./routes/userRoutes');
 const imageRoutes = require('./routes/imageRoutes');
-
 app.use('/image/', imageRoutes);
+app.use('/user/', userRoutes);
 
 const port = process.env.PORT || 1812;
 app.listen(port, ()=>{
